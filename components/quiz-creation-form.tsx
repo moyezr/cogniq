@@ -55,14 +55,6 @@ const QuizCreationForm = (props: Props) => {
         setIsLoading(true);
         setFinished(false);
         try {
-            // use this when generating questions using serverless api
-            // const {data: { questions }}= await axios.post(
-            //   "/api/questions/create",
-            //   {
-            //     topic,
-            //     questionNumber,
-            //   }
-            // );
             const prompt = promptGenerator(topic, questionNumber); // Generates the prompt by prompt engineering for generating questions
 
             const response = await axios.post(
@@ -93,24 +85,26 @@ const QuizCreationForm = (props: Props) => {
             let parsedQuestions = apiResponseSchema.parse(questions); // parsing with zod to see if there are any type errors
             // console.log("parsed questions", parsedQuestions)
             let formattedQuestions = parsedQuestions.questions.map((item: openAiResponse) => {
-                    // formatting the questions to post it into the database
-                    return {
-                        question: item.question,
-                        answer: item.answer,
-                        options: JSON.stringify(item.options),
-                        gameId: gameId, // relating it with the game
-                    };
-                }) as Question[];
+                // formatting the questions to post it into the database
+                return {
+                    question: item.question,
+                    answer: item.answer,
+                    options: JSON.stringify(item.options),
+                  
+                };
+            }) as Question[];
+
+            console.log("formatted questions", formattedQuestions)
             const gameCreationResponse = await axios.post("/api/game", {
                 // creating the game to get the gameId
                 topic,
                 questionNumber,
                 questions: formattedQuestions,
             });
-
+            console.log("game creation response", gameCreationResponse.data)
             const { gameId } = gameCreationResponse.data; // getting the gameId
 
-    
+
             router.push(`/play/${gameId}`); // pushing to the play page
         } catch (error) {
             toast({
@@ -135,56 +129,56 @@ const QuizCreationForm = (props: Props) => {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-md mx-auto space-y-8 p-6 bg-slate-950/50 rounded-lg border border-slate-800">
-            <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Create Quiz</h2>
-                <p className="text-slate-400">Generate questions about any topic</p>
-            </div>
+                <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-white">Create Quiz</h2>
+                    <p className="text-slate-400">Generate questions about any topic</p>
+                </div>
 
-            <FormField
-                control={form.control}
-                name="topic"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel className="text-slate-200">Topic</FormLabel>
-                    <FormControl>
-                    <Input 
-                        placeholder="Enter a topic (e.g., Javascript)" 
-                        className="bg-slate-900 border-slate-700 focus:border-blue-600"
-                        {...field} 
-                    />
-                    </FormControl>
-                    <FormMessage className="text-sm text-red-400" />
-                </FormItem>
-                )}
-            />
+                <FormField
+                    control={form.control}
+                    name="topic"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-slate-200">Topic</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Enter a topic (e.g., Javascript)"
+                                    className="bg-slate-900 border-slate-700 focus:border-blue-600"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage className="text-sm text-red-400" />
+                        </FormItem>
+                    )}
+                />
 
-            <FormField
-                control={form.control}
-                name="questionNumber"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel className="text-slate-200">Number of Questions</FormLabel>
-                    <FormControl>
-                    <Input
-                        placeholder="Choose between 3-10"
-                        type="number"
-                        min={3}
-                        max={10}
-                        className="bg-slate-900 border-slate-700 focus:border-blue-600"
-                        {...field}
-                    />
-                    </FormControl>
-                    <FormMessage className="text-sm text-red-400" />
-                </FormItem>
-                )}
-            />
+                <FormField
+                    control={form.control}
+                    name="questionNumber"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="text-slate-200">Number of Questions</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder="Choose between 3-10"
+                                    type="number"
+                                    min={3}
+                                    max={10}
+                                    className="bg-slate-900 border-slate-700 focus:border-blue-600"
+                                    {...field}
+                                />
+                            </FormControl>
+                            <FormMessage className="text-sm text-red-400" />
+                        </FormItem>
+                    )}
+                />
 
-            <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-                type="submit"
-            >
-                Generate Quiz
-            </Button>
+                <Button
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
+                    type="submit"
+                >
+                    Generate Quiz
+                </Button>
             </form>
         </Form>
     );

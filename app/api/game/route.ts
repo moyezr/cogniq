@@ -31,7 +31,7 @@ export async function POST(req: Request, res: Response) {
             options: question.options,
             isCorrect: null,
             userAnswer: null,
-          })),  
+          })),
         }
       },
     });
