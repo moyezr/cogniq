@@ -5,10 +5,10 @@ import { prisma } from "@/lib/db"
 import ResultInterface from "./_components/result-interface"
 
 
-export default async function Results({ params }: { params: { id: string } }) {
+export default async function Results({ params : {id} }: { params: { id: string } }) {
   const quiz = await prisma.game.findUnique({
     where: {
-      id: params.id,
+      id: id,
     },
     include: {
       questions: true,
@@ -27,14 +27,11 @@ export default async function Results({ params }: { params: { id: string } }) {
   })
 
 
-  console.log(quiz)
-
-
   return (
     <div className="min-h-screen bg-slate-950">
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        <ResultInterface quiz={quiz} id={params.id} />
+        <ResultInterface quiz={quiz} id={id} />
       </main>
     </div>
   )

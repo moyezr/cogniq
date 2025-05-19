@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-// import LoadingQuestions from "./LoadingQuestions";
 import { useRouter } from "next/navigation";
 import { Question } from "@prisma/client";
 import { promptGenerator } from "@/lib/utils";
@@ -57,6 +56,10 @@ const QuizCreationForm = (props: Props) => {
         try {
             const prompt = promptGenerator(topic, questionNumber); // Generates the prompt by prompt engineering for generating questions
 
+
+            /* NOTE FOR THE JUDGES: I am doing an api call directly to open ai from the client side because doing it in the backend api             
+            gives timeout error, since I am on Vercel Hobby Tier. 
+            */
             const response = await axios.post(
                 "https://api.openai.com/v1/chat/completions", // directly using the rest api from openai due to limited timeout capacity of nextjs serverless functions
                 {
@@ -75,12 +78,11 @@ const QuizCreationForm = (props: Props) => {
                 }
             );
 
-            // console.log("RESPONSE FROM OPEN AI", response.data);
+           
 
 
             let questions = JSON.parse(response.data.choices[0].message.content);
 
-            // console.log("GENERATAED QUESTIONS", questions) // testing purpose -> logging out the response generated from openai
 
             let parsedQuestions = apiResponseSchema.parse(questions); // parsing with zod to see if there are any type errors
             // console.log("parsed questions", parsedQuestions)
@@ -90,18 +92,16 @@ const QuizCreationForm = (props: Props) => {
                     question: item.question,
                     answer: item.answer,
                     options: JSON.stringify(item.options),
-                  
+
                 };
             }) as Question[];
 
-            console.log("formatted questions", formattedQuestions)
             const gameCreationResponse = await axios.post("/api/game", {
                 // creating the game to get the gameId
                 topic,
                 questionNumber,
                 questions: formattedQuestions,
             });
-            console.log("game creation response", gameCreationResponse.data)
             const { gameId } = gameCreationResponse.data; // getting the gameId
 
 

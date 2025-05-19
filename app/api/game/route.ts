@@ -1,4 +1,3 @@
-import { quizCreationSchema } from "@/schemas/quizSchema";
 import { ZodError } from "zod";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
@@ -14,7 +13,7 @@ export async function POST(req: Request, res: Response) {
     const session = await auth();
 
     if (!session?.user) {
-      return Response.json({ message: "Unauthorized" }, { status: 400 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 400 });
     }
 
     const userId = session.user.id;

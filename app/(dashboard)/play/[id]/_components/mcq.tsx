@@ -41,7 +41,7 @@ export default function MCQ({ quiz, id }: { quiz: any, id: string }) {
                 const submitResponse = await fetch(`/api/game/${id}/submit`, {
                     method: "POST",
 
-                    body: JSON.stringify({ answers: userAnswers }),
+                    body: JSON.stringify({ answers: { ...userAnswers, [currentQuestion.id]: selectedOption } }),
                 })
                 if (submitResponse.status != 200) {
                     throw new Error("Failed to submit quiz")

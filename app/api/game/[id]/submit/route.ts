@@ -14,10 +14,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
     })
     const body = await request.json()
     const { answers } = body
-
-    // Here you would typically process the answers, e.g., save them to a database
-    // For demonstration purposes, we'll just log them
-
     if (!quiz) {
         return NextResponse.json({ message: "Quiz not found" }, {
             status: 404,
